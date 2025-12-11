@@ -48,7 +48,10 @@ def translate_text(text, src_lang, tgt_lang, model_id="facebook/nllb-200-distill
     result = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)[0]
     
     end_time = time.time()
-    print(f"Translation: {result}")
+    try:
+        print(f"Translation: {result}")
+    except UnicodeEncodeError:
+        print(f"Translation: {result.encode('utf-8')}")
     print(f"Inference time: {end_time - start_time:.4f} seconds")
     return result
 

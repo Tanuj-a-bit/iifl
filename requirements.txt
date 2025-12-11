@@ -1,5 +1,4 @@
-optimum
-onnxruntime
+optimum[onnxruntime]
 transformers
 sentencepiece
 protobuf
