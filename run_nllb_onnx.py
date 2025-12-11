@@ -48,8 +48,7 @@ def translate_text(text, src_lang, tgt_lang, model, tokenizer):
     return result
 
 if __name__ == "__main__":
-    # Example usage
-    input_text = "Hello, how are you doing today?"
+    print("--- NLLB ONNX Translator ---")
     
     # Language codes: https://github.com/facebookresearch/flores/blob/main/flores200/README.md#languages-in-flores-200
     source_language = "eng_Latn" # English
@@ -58,5 +57,30 @@ if __name__ == "__main__":
     # Load model once
     model, tokenizer = load_model()
     
-    # Translate
-    translate_text(input_text, source_language, target_language, model, tokenizer)
+    print(f"\nCurrent Configuration: Source={source_language}, Target={target_language}")
+    print("Type 'quit' to exit, 'change' to change languages.")
+
+    while True:
+        try:
+            user_input = input("\nEnter text to translate: ").strip()
+            
+            if user_input.lower() in ['quit', 'exit']:
+                break
+            
+            if user_input.lower() == 'change':
+                source_language = input("Enter Source Language Code (e.g., eng_Latn): ").strip()
+                target_language = input("Enter Target Language Code (e.g., hin_Deva): ").strip()
+                print(f"Configuration updated: Source={source_language}, Target={target_language}")
+                continue
+
+            if not user_input:
+                continue
+
+            # Translate
+            translate_text(user_input, source_language, target_language, model, tokenizer)
+            
+        except KeyboardInterrupt:
+            print("\nExiting...")
+            break
+        except Exception as e:
+            print(f"An error occurred: {e}")
