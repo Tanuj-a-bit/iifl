@@ -2,34 +2,27 @@ from optimum.onnxruntime import ORTModelForSeq2SeqLM
 from transformers import AutoTokenizer
 import time
 
-def translate_text(text, src_lang, tgt_lang, model_id="facebook/nllb-200-distilled-600M", local_model_path=None):
+def load_model(model_id="facebook/nllb-200-distilled-600M", local_model_path=None):
     """
-    Translates text using NLLB model with ONNX Runtime.
-    
-    Args:
-        text (str): Text to translate.
-        src_lang (str): Source language code (e.g., 'eng_Latn').
-        tgt_lang (str): Target language code (e.g., 'fra_Latn').
-        model_id (str): Hugging Face model ID to export/load if local_path is not provided.
-        local_model_path (str): Path to a pre-exported ONNX model directory.
+    Loads the NLLB model and tokenizer.
     """
     print(f"Loading model... (Source: {local_model_path if local_model_path else model_id})")
     
     if local_model_path:
-        # Load pre-exported model from local path
         model = ORTModelForSeq2SeqLM.from_pretrained(local_model_path)
         tokenizer = AutoTokenizer.from_pretrained(local_model_path)
     else:
-        # Load from Hub and export to ONNX (if not already cached/exported)
-        # Note: export=True will convert the model to ONNX. 
-        # For a truly "pre-exported" workflow without conversion overhead on first run, 
-        # one should run: optimum-cli export onnx --model facebook/nllb-200-distilled-600M nllb_onnx/
         print("Note: If this is the first run, it might take some time to export the model to ONNX.")
         model = ORTModelForSeq2SeqLM.from_pretrained(model_id, export=True)
         tokenizer = AutoTokenizer.from_pretrained(model_id)
 
     print("Model loaded.")
+    return model, tokenizer
 
+def translate_text(text, src_lang, tgt_lang, model, tokenizer):
+    """
+    Translates text using the loaded NLLB model.
+    """
     # NLLB requires setting the source language in the tokenizer
     tokenizer.src_lang = src_lang
 
@@ -39,7 +32,6 @@ def translate_text(text, src_lang, tgt_lang, model_id="facebook/nllb-200-distill
     inputs = tokenizer(text, return_tensors="pt")
     
     # Generate translation
-    # forced_bos_token_id is required for NLLB to specify target language
     generated_tokens = model.generate(
         **inputs, 
         forced_bos_token_id=tokenizer.lang_code_to_id[tgt_lang]
@@ -63,8 +55,8 @@ if __name__ == "__main__":
     source_language = "eng_Latn" # English
     target_language = "hin_Deva" # Hindi
     
-    # You can specify a local path if you have a pre-exported model, e.g., "./nllb_onnx"
-    # translate_text(input_text, source_language, target_language, local_model_path="./nllb_onnx")
+    # Load model once
+    model, tokenizer = load_model()
     
-    # Or let Optimum handle the export/download
-    translate_text(input_text, source_language, target_language)
+    # Translate
+    translate_text(input_text, source_language, target_language, model, tokenizer)
