@@ -21,9 +21,9 @@ class TranslationApp:
 
         # Language codes (subset of FLORES-200)
         # Indian Languages (NLLB-200 / FLORES-200)
+        # Indian Languages (NLLB-200 / FLORES-200)
         self.languages = {
             "English": "eng_Latn",
-
             # Indo-Aryan
             "Hindi": "hin_Deva",
             "Bengali": "ben_Beng",
@@ -81,7 +81,7 @@ class TranslationApp:
         self.src_combo.pack(side=tk.LEFT, padx=5)
 
         ttk.Label(lang_frame, text="Target:").pack(side=tk.LEFT)
-        self.tgt_lang_var = tk.StringVar(value="Hindi")
+        self.tgt_lang_var = tk.StringVar(value="Bengali")
         self.tgt_combo = ttk.Combobox(lang_frame, textvariable=self.tgt_lang_var, values=list(self.languages.keys()), state="readonly")
         self.tgt_combo.pack(side=tk.LEFT, padx=5)
 
